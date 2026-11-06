@@ -10,11 +10,11 @@ st.set_page_config(
     layout="centered"
 )
 
-# Load pre-trained PCA and Classifier models
+# Load pre-trained PCA and Classifier models (.sav format)
 @st.cache_resource
 def load_models():
-    pca = joblib.load('pca_model.joblib')
-    classifier = joblib.load('classifier_model.joblib')
+    pca = joblib.load('pca_model.sav')
+    classifier = joblib.load('classifier_model.sav')
     return pca, classifier
 
 try:
@@ -22,7 +22,7 @@ try:
     models_loaded = True
 except Exception as e:
     models_loaded = False
-    st.error(f"Error loading models: {e}. Please make sure 'pca_model.joblib' and 'classifier_model.joblib' are present in the directory.")
+    st.error(f"Error loading models: {e}. Please make sure 'pca_model.sav' and 'classifier_model.sav' are present in the directory.")
 
 # App Header
 st.title("🎗️ Breast Cancer Prediction Platform")
@@ -53,8 +53,6 @@ if models_loaded:
         symmetry_mean = st.number_input("Symmetry Mean", min_value=0.0, max_value=0.5, value=0.18)
 
     # Create a full mock vector of 30 standardized features required by our PCA
-    # (Using mean values for variables not configured directly via input to avoid mismatch in dimension)
-    # In a production setting, you would pass the raw values through the saved StandardScaler pipeline.
     raw_input_data = np.zeros((1, 30))
     raw_input_data[0, 0] = radius_mean
     raw_input_data[0, 1] = texture_mean
@@ -65,7 +63,6 @@ if models_loaded:
     raw_input_data[0, 6] = concavity_mean
     raw_input_data[0, 7] = concave_points_mean
     raw_input_data[0, 8] = symmetry_mean
-    # Fill remaining columns with baseline placeholder scaled features (0.0 matches standard mean)
     
     if st.button("Predict Diagnosis"):
         # Apply PCA reduction
